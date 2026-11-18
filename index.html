@@ -432,8 +432,13 @@
         .tab-panel {
             display: none;
             opacity: 0;
-            transition: opacity 0.7s ease;
+            transition: opacity 0.7s ease, transform 0.6s cubic-bezier(.22,.8,.3,1);
         }
+        .container { overflow-x: clip; }
+        body[data-slide="left"] .tab-panel.fade-out { transform: translateX(-90px); }
+        body[data-slide="left"] .tab-panel.fade-in { transform: translateX(90px); }
+        body[data-slide="right"] .tab-panel.fade-out { transform: translateX(90px); }
+        body[data-slide="right"] .tab-panel.fade-in { transform: translateX(-90px); }
         .tab-panel.active {
             display: block;
             opacity: 1;
@@ -2750,6 +2755,7 @@ document.addEventListener('DOMContentLoaded', function() {
             championships: { 1: num(championships, 1), 2: num(championships, 2) },
             history: history,
             champArchive: { v: 1, items: window.gtaArchive || [] },
+            finalEvent: window.gtaFinalEvent || null,
             energyLog: energyLog, energyLast: energyLast,
             name1: el('name1').value, name2: el('name2').value,
             alt1: el('img1').alt, alt2: el('img2').alt,
@@ -2777,6 +2783,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 try { localStorage.setItem('gta_champ_archive', JSON.stringify(window.gtaArchive)); } catch (e) {}
                 if (typeof window.renderArchive === 'function') window.renderArchive();
             }
+            if (r.finalEvent && typeof window.gtaOnFinalEvent === 'function') { try { window.gtaOnFinalEvent(r.finalEvent); } catch (e) {} }
             var i1 = el('img1'), i2 = el('img2');
             if (r.alt1 && r.alt2 && i1.alt !== r.alt1 && i1.alt === r.alt2) {
                 var ts = i1.src, ta = i1.alt;
@@ -3520,15 +3527,38 @@ document.addEventListener('DOMContentLoaded', function() {
     vids.cosmos.addEventListener('error', sequence);
     vids.andro.addEventListener('error', sequence);
 
-    function which(player) {
-        var n = String(names()['n' + player] || '').toLowerCase();
+    function keyFor(name, player) {
+        var n = String(name || '').toLowerCase();
         if (n.indexOf('cosmos') !== -1) return 'cosmos';
         if (n.indexOf('androm') !== -1) return 'andro';
         return player === 1 ? 'cosmos' : 'andro';
     }
+    function which(player) { return keyFor(names()['n' + player], player); }
+
+    // evento partilhado: o outro telemóvel recebe-o pela sincronização e mostra a mesma sequência
+    var EV_KEY = 'gta_final_event', SEEN_KEY = 'gta_final_seen';
+    function seenId() { try { return localStorage.getItem(SEEN_KEY); } catch (e) { return null; } }
+    function markSeen(id) { try { localStorage.setItem(SEEN_KEY, String(id)); } catch (e) {} }
+    try { window.gtaFinalEvent = JSON.parse(localStorage.getItem(EV_KEY) || 'null'); } catch (e) { window.gtaFinalEvent = null; }
+
+    window.gtaOnFinalEvent = function (ev) {
+        if (!ev || !ev.id) return;
+        if (String(ev.id) === seenId()) return;                 // já mostrado neste telemóvel
+        markSeen(ev.id);
+        if (Math.abs(Date.now() - ev.id) > 180000) return;      // evento antigo: não repete
+        if (box.style.display === 'flex' || seq) return;        // já em curso
+        crack.style.display = 'none';
+        open(keyFor(ev.winner, ev.player));
+    };
 
     var _c = window.celebrate100;
     window.celebrate100 = function (player) {
+        // regista o evento ANTES de gravar/sincronizar, para chegar também ao outro telemóvel
+        var nmw = names();
+        var ev = { id: Date.now(), player: player, winner: player === 1 ? nmw.n1 : nmw.n2 };
+        window.gtaFinalEvent = ev;
+        markSeen(ev.id);
+        try { localStorage.setItem(EV_KEY, JSON.stringify(ev)); } catch (e) {}
         _c(player);                                 // lógica original (marcador a zeros, campeonato, etc.)
         try { var w = document.getElementById('winSound'); if (w) { w.pause(); w.currentTime = 0; } } catch (e) {}
         seq = false;
@@ -3654,9 +3684,9 @@ document.addEventListener('DOMContentLoaded', function() {
 })();
 </script>
 <script>
-/* Mudar de separador ao arrastar o ecrã para o lado */
+/* Mudar de separador ao arrastar o ecrã para o lado (o ecrã desliza) */
 (function () {
-    var sx = 0, sy = 0, st = 0, ok = false;
+    var sx = 0, sy = 0, ok = false, fired = false;
 
     function visible(el) {
         if (!el) return false;
@@ -3672,7 +3702,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function hScroll(el) {
         while (el && el !== document.body && el.nodeType === 1) {
             var cs = getComputedStyle(el);
-            if ((cs.overflowX === 'auto' || cs.overflowX === 'scroll') && el.scrollWidth > el.clientWidth + 2) return true;
+            if ((cs.overflowX === 'auto' || cs.overflowX === 'scroll') && el.scrollWidth > el.clientWidth + 8) return true;
             if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || el.isContentEditable) return true;
             if (el.hasAttribute && el.hasAttribute('data-noswipe')) return true;
             el = el.parentElement;
@@ -3680,36 +3710,49 @@ document.addEventListener('DOMContentLoaded', function() {
         return false;
     }
 
+    function go(dir) {                                   // dir = +1 (seguinte) / -1 (anterior)
+        var btns = Array.prototype.slice.call(document.querySelectorAll('.tab-btn'));
+        var i = btns.findIndex(function (b) { return b.classList.contains('active'); });
+        var n = i + dir;
+        if (i < 0 || n < 0 || n >= btns.length) return;
+        document.body.setAttribute('data-slide', dir > 0 ? 'left' : 'right');
+        btns[n].click();
+        try { btns[n].scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' }); } catch (e) {}
+        setTimeout(function () { document.body.removeAttribute('data-slide'); }, 1600);
+    }
+
+    function check(t, ended) {
+        var dx = t.clientX - sx, dy = t.clientY - sy, adx = Math.abs(dx), ady = Math.abs(dy);
+        if (!fired && ady > 40 && ady > adx * 1.2) { ok = false; return; }          // claramente vertical: rolar a página
+        if (adx >= 60 && ady <= adx * 0.75) {                                         // claramente horizontal
+            var sel = window.getSelection && String(window.getSelection());
+            if (sel) { ok = false; return; }                                          // não interferir com seleção de texto
+            fired = true; ok = false;
+            go(dx < 0 ? 1 : -1);                                                      // esquerda = seguinte, direita = anterior
+        }
+    }
+
     document.addEventListener('touchstart', function (e) {
-        ok = false;
+        ok = false; fired = false;
         if (e.touches.length !== 1) return;
         var t = e.touches[0], w = window.innerWidth;
-        if (t.clientX < 24 || t.clientX > w - 24) return;       // gestos de borda do sistema (voltar)
+        if (t.clientX < 20 || t.clientX > w - 20) return;                              // gestos de borda do sistema
         if (blocked() || hScroll(e.target)) return;
-        sx = t.clientX; sy = t.clientY; st = Date.now(); ok = true;
+        sx = t.clientX; sy = t.clientY; ok = true;
     }, { passive: true });
 
     document.addEventListener('touchmove', function (e) {
-        if (e.touches.length > 1) ok = false;
+        if (!ok) return;
+        if (e.touches.length > 1) { ok = false; return; }
+        check(e.touches[0], false);                                                    // dispara durante o arrasto
     }, { passive: true });
 
     document.addEventListener('touchend', function (e) {
         if (!ok) return;
+        check(e.changedTouches[0], true);
         ok = false;
-        var t = e.changedTouches[0];
-        var dx = t.clientX - sx, dy = t.clientY - sy;
-        if (Date.now() - st > 900) return;
-        if (Math.abs(dx) < 70 || Math.abs(dy) > Math.abs(dx) * 0.6) return;   // só gestos claramente horizontais
-        var sel = window.getSelection && String(window.getSelection());
-        if (sel) return;                                                        // não interferir com seleção de texto
-        var btns = Array.prototype.slice.call(document.querySelectorAll('.tab-btn'));
-        var i = btns.findIndex(function (b) { return b.classList.contains('active'); });
-        if (i < 0) return;
-        var n = dx < 0 ? i + 1 : i - 1;                                         // arrastar para a esquerda = separador seguinte
-        if (n < 0 || n >= btns.length) return;
-        btns[n].click();
-        try { btns[n].scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' }); } catch (err) {}
     }, { passive: true });
+    document.addEventListener('touchcancel', function () { ok = false; }, { passive: true });
 })();
 </script>
 <script>
