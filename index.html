@@ -43,7 +43,7 @@
             font-family: 'Orbitron', sans-serif;
             font-size: clamp(1.2rem, 4vw, 1.9rem);
             font-weight: 900;
-            background: linear-gradient(90deg, #00d4ff, #7b2cbf, #ff6b6b, #00d4ff);
+            background: linear-gradient(90deg, #00d4ff, #7b2cbf, #ffc21a, #00d4ff);
             background-size: 300% 100%;
             -webkit-background-clip: text;
             background-clip: text;
@@ -253,8 +253,18 @@
         }
         /* Chat styles */
         .chat-msg { overflow-wrap: anywhere; white-space: pre-wrap; }
+        /* Posições trocadas (apenas neste telemóvel) */
+        body.view-swapped .scoreboard { flex-direction: row-reverse; }
+        body.view-swapped .champ-row { flex-direction: row-reverse; }
+        body.view-swapped .odds-grid, body.view-swapped .player-stats { direction: rtl; }
+        body.view-swapped .odds-grid > *, body.view-swapped .player-stats > * { direction: ltr; }
+        body.view-swapped .h2h-score, body.view-swapped .h2h-names { display: flex; flex-direction: row-reverse; justify-content: center; align-items: baseline; gap: 10px; }
+        @media (max-width: 680px) {
+            body.view-swapped .player-stats { direction: ltr; display: flex; flex-direction: column-reverse; }
+            body.view-swapped .player-stats > * { width: 100%; }
+        }
         /* Constelação */
-        .cs-divider { height: 3px; margin: 18px 6px 16px; border-radius: 2px; background: linear-gradient(90deg, rgba(0,212,255,0), #00d4ff 22%, rgba(190,200,255,.9) 50%, #ff6b6b 78%, rgba(255,107,107,0)); box-shadow: 0 0 10px rgba(0,212,255,.35), 0 0 10px rgba(255,107,107,.25); }
+        .cs-divider { height: 3px; margin: 18px 6px 16px; border-radius: 2px; background: linear-gradient(90deg, rgba(0,212,255,0), #00d4ff 22%, rgba(190,200,255,.9) 50%, #ffc21a 78%, rgba(255,194,26,0)); box-shadow: 0 0 10px rgba(0,212,255,.35), 0 0 10px rgba(255,194,26,.25); }
         .cs-legend { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; font-size: .85rem; margin: 6px 0 4px; }
         .cs-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
         .cs-summary { text-align: center; font-size: .8rem; color: #8fa6c8; margin-bottom: 8px; }
@@ -391,7 +401,7 @@
             color: #fff;
         }
         .chat-msg.other.p1 { border-left: 3px solid #00d4ff; }
-        .chat-msg.other.p2 { border-left: 3px solid #ff6b6b; }
+        .chat-msg.other.p2 { border-left: 3px solid #ffc21a; }
         .chat-toast {
             position: fixed;
             top: 18px;
@@ -477,7 +487,7 @@
             overflow: hidden;
         }
         .player1 { border-color: rgba(0,212,255,0.4); }
-        .player2 { border-color: rgba(255,100,100,0.4); }
+        .player2 { border-color: rgba(255,194,26,0.4); }
         .player-img-wrapper {
             width: 88px; height: 88px;
             margin: 0 auto 8px;
@@ -487,7 +497,7 @@
             position: relative;
         }
         .player1 .player-img-wrapper { border-color: #00d4ff; box-shadow: 0 0 25px rgba(0,212,255,0.45); }
-        .player2 .player-img-wrapper { border-color: #ff6b6b; box-shadow: 0 0 25px rgba(255,100,100,0.4); }
+        .player2 .player-img-wrapper { border-color: #ffc21a; box-shadow: 0 0 25px rgba(255,194,26,0.4); }
         .player-img-wrapper img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .player1 .player-img-wrapper img { object-position: center 18%; }
         .player2 .player-img-wrapper img { object-position: center 20%; }
@@ -520,7 +530,7 @@
             word-wrap: break-word;
         }
         .player1 .name-selector textarea:focus { border-color: #00d4ff; box-shadow: 0 0 12px rgba(0,212,255,0.4); }
-        .player2 .name-selector textarea:focus { border-color: #ff6b6b; box-shadow: 0 0 12px rgba(255,100,100,0.4); }
+        .player2 .name-selector textarea:focus { border-color: #ffc21a; box-shadow: 0 0 12px rgba(255,194,26,0.4); }
         .score-label {
             font-size: 0.65rem;
             color: #8ba3c7;
@@ -546,7 +556,7 @@
         }
 
         .player1 .score-display { color: #00d4ff; }
-        .player2 .score-display { color: #ff6b6b; }
+        .player2 .score-display { color: #ffc21a; }
         .score-display.on-fire {
             color: #fff !important;
             text-shadow: 0 2px 8px rgba(0,0,0,0.95), 0 0 20px rgba(0,0,0,0.8), 0 0 4px #000;
@@ -582,8 +592,9 @@
             box-shadow: 0 4px 15px rgba(0,180,216,0.4);
         }
         .player2 .btn-plus {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-            box-shadow: 0 4px 15px rgba(255,107,107,0.4);
+            color: #2b1d00;
+            background: linear-gradient(135deg, #ffc21a, #e69500);
+            box-shadow: 0 4px 15px rgba(255,194,26,0.4);
         }
         .btn-plus:hover { transform: scale(1.05); filter: brightness(1.15); }
         .btn-minus {
@@ -647,7 +658,7 @@
         }
         .status-box.tie { background: rgba(0,200,83,0.2); border: 1px solid rgba(0,230,118,0.5); color: #00e676; }
         .status-box.lead1 { background: rgba(0,212,255,0.15); border: 1px solid rgba(0,212,255,0.4); color: #00d4ff; }
-        .status-box.lead2 { background: rgba(255,107,107,0.15); border: 1px solid rgba(255,107,107,0.4); color: #ff6b6b; }
+        .status-box.lead2 { background: rgba(255,194,26,0.15); border: 1px solid rgba(255,194,26,0.4); color: #ffc21a; }
         .match-info {
             text-align: center;
             background: rgba(8,16,32,0.82);
@@ -754,27 +765,27 @@
             border: 1px solid rgba(100,150,255,0.18); text-align: center;
         }
         .player-box.p1 { border-color: rgba(0,212,255,0.35); }
-        .player-box.p2 { border-color: rgba(255,107,107,0.35); }
+        .player-box.p2 { border-color: rgba(255,194,26,0.35); }
         .player-box .av { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; margin: 0 auto 8px; border: 2px solid rgba(255,255,255,0.3); display: block; }
         .player-box .pname { font-weight: 700; font-size: 0.85rem; line-height: 1.3; margin-bottom: 10px; word-wrap: break-word; }
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
         .stat-item { background: rgba(0,0,0,0.25); border-radius: 10px; padding: 8px 4px; }
         .stat-item .val { font-family: 'Orbitron', sans-serif; font-size: 1.15rem; font-weight: 900; }
         .player-box.p1 .stat-item .val { color: #00d4ff; }
-        .player-box.p2 .stat-item .val { color: #ff6b6b; }
+        .player-box.p2 .stat-item .val { color: #ffc21a; }
         .stat-item .lbl { font-size: 0.62rem; color: #8ba3c7; text-transform: uppercase; margin-top: 2px; }
 
         .h2h { text-align: center; padding: 12px; }
         .h2h-score { font-family: 'Orbitron', sans-serif; font-size: 2.2rem; font-weight: 900; letter-spacing: 3px; }
         .h2h-score .s1 { color: #00d4ff; }
-        .h2h-score .s2 { color: #ff6b6b; }
+        .h2h-score .s2 { color: #ffc21a; }
         .h2h-score .sep { color: #6a7a9a; margin: 0 6px; }
         .h2h-names { display: flex; justify-content: space-between; margin-top: 6px; font-size: 0.8rem; color: #a0b4d0; gap: 8px; }
         .h2h-names span { flex: 1; word-wrap: break-word; }
         .h2h-names span:last-child { text-align: right; }
         .bar-track { height: 12px; background: rgba(0,0,0,0.35); border-radius: 8px; overflow: hidden; display: flex; margin-top: 10px; }
         .bar-p1 { background: linear-gradient(90deg, #0077b6, #00d4ff); height: 100%; }
-        .bar-p2 { background: linear-gradient(90deg, #ff6b6b, #ee5a24); height: 100%; }
+        .bar-p2 { background: linear-gradient(90deg, #ffc21a, #e69500); height: 100%; }
         .bar-label { display: flex; justify-content: space-between; font-size: 0.78rem; color: #a0b4d0; margin-bottom: 4px; }
 
         .streak-row {
@@ -1020,7 +1031,7 @@
             box-shadow: 0 12px 40px rgba(0,0,0,0.55);
         }
         .profile-card.cosmos { border-color: rgba(255, 200, 80, 0.4); }
-        .profile-card.andro { border-color: rgba(160, 140, 255, 0.45); }
+        .profile-card.andro { border-color: rgba(255, 194, 26, 0.5); }
         .profile-close {
             float: right;
             background: transparent;
@@ -1051,7 +1062,7 @@
             letter-spacing: 0.5px;
         }
         .profile-card.cosmos h2 { color: #ffe81f; }
-        .profile-card.andro h2 { color: #b8b4ff; }
+        .profile-card.andro h2 { color: #ffd04d; }
         .profile-sub {
             text-transform: uppercase;
             letter-spacing: 0.08em;
@@ -1123,7 +1134,7 @@
             border: 1px solid rgba(255,255,255,0.08);
         }
         .champ-card.p1 { border-color: rgba(0,212,255,0.35); }
-        .champ-card.p2 { border-color: rgba(255,107,107,0.35); }
+        .champ-card.p2 { border-color: rgba(255,194,26,0.35); }
         .champ-card .champ-name {
             font-size: 0.78rem;
             color: #a8b0d0;
@@ -1201,20 +1212,20 @@
             line-height: 1.45;
         }
         .profile-card.cosmos .profile-relic h4 { color: #ffe81f; }
-        .profile-card.andro .profile-relic h4 { color: #c4b8ff; }
+        .profile-card.andro .profile-relic h4 { color: #ffd04d; }
 
 
         /* NÍVEL ENERGÉTICO */
         .en-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
         .en-av{width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid;flex:none}
-        .en-av.p1{border-color:#00d4ff}.en-av.p2{border-color:#ff6b6b}
+        .en-av.p1{border-color:#00d4ff}.en-av.p2{border-color:#ffc21a}
         .en-main{flex:1;min-width:0}
         .en-top{display:flex;justify-content:space-between;gap:8px;font-size:.85rem;color:#e0e8ff;margin-bottom:4px}
         .en-top b{font-family:'Orbitron',sans-serif}
         .en-track{height:14px;background:rgba(0,0,0,.4);border-radius:8px;overflow:hidden}
         .en-fill{height:100%;border-radius:8px;transition:width .5s}
         .en-fill.p1{background:linear-gradient(90deg,#0077b6,#00d4ff)}
-        .en-fill.p2{background:linear-gradient(90deg,#ff6b6b,#ee5a24)}
+        .en-fill.p2{background:linear-gradient(90deg,#ffc21a,#e69500)}
         .en-sub{font-size:.72rem;color:#8ba3c7;margin-top:3px}
         .en-legend{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;font-size:.78rem;color:#a0b4d0;margin:4px 0 6px}
         .en-legend i{display:inline-block;width:16px;border-top:3px solid;vertical-align:middle;margin-right:5px}
@@ -1222,12 +1233,12 @@
         .en-grid{stroke:rgba(255,255,255,.1);stroke-width:1}
         .en-ax{fill:#6a7a9a;font-size:8px}
         .en-l1{fill:none;stroke:#00d4ff;stroke-width:2;stroke-linejoin:round}
-        .en-l2{fill:none;stroke:#ff6b6b;stroke-width:2;stroke-linejoin:round;stroke-dasharray:5 3}
+        .en-l2{fill:none;stroke:#ffc21a;stroke-width:2;stroke-linejoin:round;stroke-dasharray:5 3}
         .en-note{text-align:center;font-size:.72rem;color:#6a7a9a;margin-top:8px;line-height:1.4}
         .en-phases{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap}
         .en-phase-win{flex:1;min-width:140px;background:rgba(0,10,30,.55);border:1px solid rgba(0,212,255,.25);border-radius:12px;overflow:hidden;position:relative}
         .en-phase-win.p1{border-color:rgba(0,212,255,.45)}
-        .en-phase-win.p2{border-color:rgba(255,107,107,.45)}
+        .en-phase-win.p2{border-color:rgba(255,194,26,.45)}
         .en-phase-win img{width:100%;aspect-ratio:9/16;object-fit:cover;display:block;background:#050a14;border-radius:0}
         .en-phase-label{position:absolute;left:0;right:0;bottom:0;padding:6px 8px;background:linear-gradient(transparent,rgba(0,0,0,.85));font-size:.72rem;color:#e0e8ff;text-align:center;font-family:'Orbitron',sans-serif}
         .en-phase-label b{display:block;font-size:.9rem;margin-top:2px}
@@ -1463,7 +1474,7 @@
 
             <div class="en-row"><img class="en-av p1" id="enImg1" alt=""><div class="en-main"><div class="en-top"><span id="enName1"></span><b id="enPct1">100%</b></div><div class="en-track"><div class="en-fill p1" id="enFill1" style="width:100%"></div></div><div class="en-sub" id="enSub1"></div></div></div>
             <div class="en-row"><img class="en-av p2" id="enImg2" alt=""><div class="en-main"><div class="en-top"><span id="enName2"></span><b id="enPct2">100%</b></div><div class="en-track"><div class="en-fill p2" id="enFill2" style="width:100%"></div></div><div class="en-sub" id="enSub2"></div></div></div>
-            <div class="en-legend"><span><i style="border-color:#00d4ff"></i><span id="enLg1"></span></span><span><i style="border-color:#ff6b6b;border-top-style:dashed"></i><span id="enLg2"></span></span></div>
+            <div class="en-legend"><span><i style="border-color:#00d4ff"></i><span id="enLg1"></span></span><span><i style="border-color:#ffc21a;border-top-style:dashed"></i><span id="enLg2"></span></span></div>
             <div id="enChart"></div>
 
             <p class="en-note">Todos começam a 100%. Cada derrota tira 1% de energia; quem perde o campeonato das 100 vitórias fica a 0%. As imagens mostram a fase de destruição do personagem (Cosmos Light Rider ou The Andromedan Warrior) conforme a energia restante (100% → 0%).</p>
@@ -1926,7 +1937,7 @@ function energySvg(e1, e2, xmax, dead) {
     });
     s += '<text class="en-ax" x="' + L + '" y="' + (H - 4) + '">0</text>' +
          '<text class="en-ax" x="' + (W - R) + '" y="' + (H - 4) + '" text-anchor="end">' + xmax + ' partidas</text>';
-    [[e1, 'en-l1', '#00d4ff', 1], [e2, 'en-l2', '#ff6b6b', 2]].forEach(([e, cls, col, p]) => {
+    [[e1, 'en-l1', '#00d4ff', 1], [e2, 'en-l2', '#ffc21a', 2]].forEach(([e, cls, col, p]) => {
         const n = e.length - 1;
         s += '<polyline class="' + cls + '" points="' + e.map((v, i) => X(i) + ',' + Y(v)).join(' ') + '"/>' +
              '<circle cx="' + X(n) + '" cy="' + Y(e[n]) + '" r="3" fill="' + col + '"/>';
@@ -2209,25 +2220,15 @@ function resetScores() {
 }
 
 function swapPlayers() {
-    const n1 = document.getElementById('name1');
-    const n2 = document.getElementById('name2');
-    const t = n1.value; n1.value = n2.value; n2.value = t;
-    const i1 = document.getElementById('img1');
-    const i2 = document.getElementById('img2');
-    const ts = i1.src, ta = i1.alt;
-    i1.src = i2.src; i1.alt = i2.alt;
-    i2.src = ts; i2.alt = ta;
-    const sc = scores[1]; scores[1] = scores[2]; scores[2] = sc;
-    energyLog = swap12(energyLog); energyLast = swap12(energyLast);
-    localStorage.setItem('gta_name1', n1.value);
-    localStorage.setItem('gta_name2', n2.value);
-    localStorage.setItem('gta_img1v8', i1.src);
-    localStorage.setItem('gta_img2v8', i2.src);
-    localStorage.setItem('gta_alt1v5', i1.alt);
-    localStorage.setItem('gta_alt2v5', i2.alt);
-    updateStatus();
-    saveState();
+    // Só muda a posição no ecrã deste telemóvel (não altera nomes, marcador nem sincroniza)
+    const on = !document.body.classList.contains('view-swapped');
+    document.body.classList.toggle('view-swapped', on);
+    try { localStorage.setItem('gta_view_swapped', on ? '1' : '0'); } catch (e) {}
+    if (typeof window.renderConstel === 'function' && document.getElementById('constelBox') && document.getElementById('constelBox').firstChild) window.renderConstel();
 }
+(function () {
+    try { if (localStorage.getItem('gta_view_swapped') === '1') document.body.classList.add('view-swapped'); } catch (e) {}
+})();
 
 function toggleHistory() {
     document.getElementById('historyPanel').classList.toggle('visible');
@@ -3233,7 +3234,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
 /* ===== Constelação do Torneio (cada dia de jogos = uma série) ===== */
 (function () {
-    var C1 = '#00d4ff', C2 = '#ff6b6b', W = 360, ROW = 50, TOP = 34, HEAD = 44, GAP = 14, LX = 92, RX = 268;
+    var C1 = '#00d4ff', C2 = '#ffc21a', W = 360, ROW = 50, TOP = 34, HEAD = 44, GAP = 14, LX = 92, RX = 268;
     var items = [], series = [];
 
     function esc(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
@@ -3312,7 +3313,7 @@ document.addEventListener('DOMContentLoaded', function() {
             for (var q = n - 1; q >= 0; q--) {
                 var k = sr.idx[q], r = n - 1 - q, it = items[k];
                 var jx = ((k * 37) % 17 - 8) * 1.6, jy = ((k * 53) % 13 - 6) * 1.5;
-                var bx = it.p === 1 ? LX : (it.p === 2 ? RX : W / 2);
+                var swp = document.body.classList.contains('view-swapped'); var bx = it.p === 1 ? (swp ? RX : LX) : (it.p === 2 ? (swp ? LX : RX) : W / 2);
                 pos[k] = { x: bx + jx, y: y0 + ROW / 2 + r * ROW + jy };
             }
             y = y0 + n * ROW + 4;
@@ -3328,7 +3329,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         // nebulosa + cabeçalho de cada série
         blocks.forEach(function (b) {
-            var w = serieWinner(b.sr, nm), col = w.p === 1 ? '0,212,255' : (w.p === 2 ? '255,107,107' : '190,200,255');
+            var w = serieWinner(b.sr, nm), col = w.p === 1 ? '0,212,255' : (w.p === 2 ? '255,194,26' : '190,200,255');
             svg += '<rect x="8" y="' + b.top + '" width="' + (W - 16) + '" height="' + (b.bottom - b.top) + '" rx="14" fill="rgba(' + col + ',.07)" stroke="rgba(' + col + ',.28)" stroke-width="1"/>';
             svg += '<text x="22" y="' + (b.top + 19) + '" fill="#cfe8ff" font-size="11" font-weight="700" letter-spacing="1.5">✦ SÉRIE · ' + esc(b.sr.date || 'sem data') + '</text>';
             svg += '<text x="' + (W - 22) + '" y="' + (b.top + 19) + '" fill="#cfe8ff" font-size="12" font-weight="700" text-anchor="end">' +
@@ -3354,7 +3355,7 @@ document.addEventListener('DOMContentLoaded', function() {
             svg += '<polygon points="' + starPts(P.x, P.y, R) + '" fill="' + col + '" stroke="#fff" stroke-opacity=".75" stroke-width="' + (big ? 1.6 : 0.8) + '"/>';
             svg += '<circle class="cs-sel" cx="' + P.x.toFixed(1) + '" cy="' + P.y.toFixed(1) + '" r="' + (R + 6) + '" fill="none" stroke="#fff" stroke-width="1.4" stroke-dasharray="3 3" opacity="0"/>';
             svg += '<circle cx="' + P.x.toFixed(1) + '" cy="' + P.y.toFixed(1) + '" r="20" fill="transparent"/>';
-            var out = it.p === 2 ? 1 : -1, tx = P.x + out * (R + 8), anchor = out === 1 ? 'start' : 'end';
+            var out = P.x < W / 2 ? -1 : 1, tx = P.x + out * (R + 8), anchor = out === 1 ? 'start' : 'end';
             if (it.p === 0) { tx = P.x + R + 8; anchor = 'start'; }
             if (big) svg += '<text x="' + tx.toFixed(1) + '" y="' + (P.y + 4).toFixed(1) + '" fill="#fff" font-size="12" font-weight="700" text-anchor="' + anchor + '">#' + it.n + '</text>';
             else if (it.runLen >= 3 && it.run === it.runLen) svg += '<text x="' + tx.toFixed(1) + '" y="' + (P.y + 4).toFixed(1) + '" fill="#ffd27a" font-size="11" text-anchor="' + anchor + '">🔥×' + it.runLen + '</text>';
@@ -3397,7 +3398,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
 /* ===== Estatísticas por série (cada dia de jogos = uma série) ===== */
 (function () {
-    var C1 = '#00d4ff', C2 = '#ff6b6b';
+    var C1 = '#00d4ff', C2 = '#ffc21a';
     function esc(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
     function row(icon, title, sub, val) {
         return '<div class="streak-row"><div class="streak-icon">' + icon + '</div><div class="streak-info"><div class="streak-title">' + title +
@@ -3570,7 +3571,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
 /* Campeonatos: guardar o histórico às 100 vitórias e retroceder para 99 */
 (function () {
-    var C1 = '#00d4ff', C2 = '#ff6b6b';
+    var C1 = '#00d4ff', C2 = '#ffc21a';
     function esc(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
     try { window.gtaArchive = JSON.parse(localStorage.getItem('gta_champ_archive') || '[]'); } catch (e) { window.gtaArchive = []; }
     if (!Array.isArray(window.gtaArchive)) window.gtaArchive = [];
