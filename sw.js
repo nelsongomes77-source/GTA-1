@@ -1,8 +1,13 @@
-const CACHE = 'gta-v2';
-const PRE = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
+const CACHE = 'gta-v3';
+// Só ficheiros pequenos na instalação (o index.html pesa ~24 MB e é guardado quando é aberto)
+const PRE = ['manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(PRE.map((u) => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
+  e.waitUntil(
+    caches.open(CACHE)
+      .then((c) => c.addAll(PRE.map((u) => new Request(u, { cache: 'reload' }))).catch(() => {}))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate', (e) => {
@@ -34,7 +39,7 @@ self.addEventListener('fetch', (e) => {
           clearTimeout(timer);
           if (r && r.ok) {
             const copy = r.clone();
-            caches.open(CACHE).then((c) => c.put(req, copy));
+            caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
           }
           if (!done) { done = true; resolve(r); }
         })
