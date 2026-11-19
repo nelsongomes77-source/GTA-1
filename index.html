@@ -1515,7 +1515,7 @@
     </div>
 
 <div class="chat-toast" id="chatToast"><span class="toast-icon">📡</span><span id="chatToastText">Convergência energética detectada em forma de mensagem.</span></div>
-    <div class="footer">Grande Torneio Astral • Bilhar Cósmico 🎱✨</div>
+    <div class="footer">Grande Torneio Astral • Bilhar Cósmico 🎱✨ <span style="opacity:.5">· v2026.11.20</span></div>
 </div>
 
 <script>
@@ -3760,8 +3760,15 @@ document.addEventListener('DOMContentLoaded', function() {
 /* App instalável (PWA) */
 (function () {
     if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)) {
+        // quando uma versão nova do serviço assume o controlo, recarrega uma vez para mostrar a versão publicada
+        var hadCtrl = !!navigator.serviceWorker.controller;
+        navigator.serviceWorker.addEventListener('controllerchange', function () {
+            if (!hadCtrl) return;
+            try { if (sessionStorage.getItem('gta_sw_reloaded')) return; sessionStorage.setItem('gta_sw_reloaded', '1'); } catch (e) {}
+            location.reload();
+        });
         window.addEventListener('load', function () {
-            navigator.serviceWorker.register('sw.js').catch(function () {});
+            navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(function () {});
         });
     }
     if (window.matchMedia && matchMedia('(display-mode: standalone)').matches) return;
