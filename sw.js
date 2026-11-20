@@ -1,5 +1,6 @@
-const CACHE = 'gta-v4';
+const CACHE = 'gta-v5';
 const PRE = ['manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
+const isMedia = (p) => /\.(mp3|mp4)$/i.test(p);
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
@@ -43,8 +44,8 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(req.url);
   if (req.method !== 'GET' || url.origin !== self.location.origin) return;
 
-  // Ficheiros de media (têm o nome ligado ao conteúdo): cache primeiro, guarda ao descarregar.
-  if (url.pathname.indexOf('/media/') !== -1) {
+  // Áudio e vídeo: cache primeiro; guarda quando descarrega por inteiro.
+  if (isMedia(url.pathname)) {
     if (req.headers.has('range')) { e.respondWith(fromCacheRange(req)); return; }
     e.respondWith(
       caches.match(req, { ignoreSearch: true }).then((c) => c || fetch(req).then((r) => {
@@ -56,7 +57,7 @@ self.addEventListener('fetch', (e) => {
   }
 
   // Página e restantes ficheiros: rede primeiro (ignora a cache HTTP do alojamento);
-  // se estiver offline ou a rede demorar, usa a cópia guardada.
+  // se estiver offline ou a rede demorar demasiado, usa a cópia guardada.
   const isPage = req.mode === 'navigate' || req.destination === 'document' || /\/(index\.html)?$/.test(url.pathname);
   e.respondWith(
     new Promise((resolve) => {
@@ -66,7 +67,7 @@ self.addEventListener('fetch', (e) => {
           if (c && !done) { done = true; resolve(c); }
           return c;
         });
-      const timer = setTimeout(fromCache, isPage ? 6000 : 4000);
+      const timer = setTimeout(fromCache, isPage ? 15000 : 4000);
       fetch(req, { cache: 'no-cache' })
         .then((r) => {
           clearTimeout(timer);
