@@ -2,7 +2,7 @@
   "name": "Grande Torneio Astral",
   "short_name": "GTA",
   "id": "./",
-  "start_url": "./",
+  "start_url": "./gta-v2.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
