@@ -1364,7 +1364,6 @@
             <button class="btn-ctrl btn-swap" onclick="swapPlayers()">⇄ Trocar Posições</button>
             <button class="btn-ctrl btn-reset" onclick="resetScores()">↺ Reiniciar Placar</button>
             <button class="btn-ctrl" onclick="toggleHistory()">📜 Histórico</button>
-            <button class="btn-ctrl" onclick="gtaHardRefresh()">🔄 Atualizar app</button>
         </div>
 
         <div class="history-panel" id="historyPanel">
@@ -1516,7 +1515,7 @@
     </div>
 
 <div class="chat-toast" id="chatToast"><span class="toast-icon">📡</span><span id="chatToastText">Convergência energética detectada em forma de mensagem.</span></div>
-    <div class="footer">Grande Torneio Astral • Bilhar Cósmico 🎱✨ <span style="opacity:.5">· v2026.11.20-2</span></div>
+    <div class="footer">Grande Torneio Astral • Bilhar Cósmico 🎱✨ <span style="opacity:.5">· v2026.11.20-6</span></div>
 </div>
 
 <script>
@@ -1625,6 +1624,7 @@ function runDraw() {
             try { localStorage.setItem('gta_first', wName); } catch(e) {}
             drawRunning = false;
             if (btn) btn.disabled = false;
+            if (typeof window.gtaDrawDone === 'function') window.gtaDrawDone(winner, wName);
         }
     }, 90);
 }
@@ -3698,6 +3698,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function blocked() {
         return visible(document.getElementById('startOverlay')) ||
             visible(document.getElementById('hundredVideo')) ||
+            visible(document.getElementById('drawVideo')) ||
             visible(document.getElementById('hundredBlackout')) ||
             !!document.querySelector('.profile-modal.visible');
     }
@@ -3773,6 +3774,107 @@ window.gtaHardRefresh = async function () {
     location.replace(location.pathname + '?v=' + Date.now());
 };
 </script>
+<div id="drawVideo" style="display:none;position:fixed;inset:0;z-index:2147483600;background:#000;align-items:center;justify-content:center;overflow:hidden">
+    <video id="drawVideoCosmos" src="abertura-cosmos.mp4" playsinline preload="none" style="display:none;width:100%;height:100%;object-fit:contain;background:#000"></video>
+    <video id="drawVideoAndro" src="abertura-andro.mp4" playsinline preload="none" style="display:none;width:100%;height:100%;object-fit:contain;background:#000"></video>
+</div>
+<script>
+/* Depois do sorteio: vídeo de abertura do jogador que joga primeiro; no fim volta ao Placar */
+(function () {
+    var box = document.getElementById('drawVideo');
+    var vids = { cosmos: document.getElementById('drawVideoCosmos'), andro: document.getElementById('drawVideoAndro') };
+    if (!box || !vids.cosmos || !vids.andro) return;
+    var cur = null, guard = null;
+
+    function toPlacar() {
+        var b = document.querySelectorAll('.tab-btn')[0];
+        if (b && !b.classList.contains('active')) b.click();
+    }
+    function close() {
+        clearTimeout(guard);
+        if (cur) { try { cur.pause(); cur.currentTime = 0; } catch (e) {} cur.style.display = 'none'; }
+        cur = null;
+        box.style.display = 'none';
+        toPlacar();
+        if (typeof started !== 'undefined' && started && soundOn) playCurrent(false);
+    }
+    function open(key) {
+        var bg = getMusic(); if (bg) bg.pause();
+        var nr = getNarr(); if (nr) { try { nr.pause(); } catch (e) {} }
+        vids.cosmos.style.display = key === 'cosmos' ? 'block' : 'none';
+        vids.andro.style.display = key === 'andro' ? 'block' : 'none';
+        cur = vids[key];
+        box.style.display = 'flex';
+        cur.muted = !soundOn;
+        try { cur.currentTime = 0; } catch (e) {}
+        guard = setTimeout(close, 30000);                 // segurança: nunca fica preso no vídeo
+        var pr = cur.play();
+        if (pr && pr.catch) pr.catch(function () {
+            cur.muted = true;                             // se o som for bloqueado, toca sem som
+            var q = cur.play();
+            if (q && q.catch) q.catch(close);             // se nem assim tocar, volta ao Placar
+        });
+    }
+    vids.cosmos.addEventListener('ended', close);
+    vids.andro.addEventListener('ended', close);
+    vids.cosmos.addEventListener('error', close);
+    vids.andro.addEventListener('error', close);
+
+    window.gtaDrawDone = function (winner, name) {
+        setTimeout(function () {
+            var pan = document.getElementById('tab-sorteio');
+            if (!pan || !pan.classList.contains('active')) return;             // já saiu do sorteio
+            var hv = document.getElementById('hundredVideo');
+            if (box.style.display === 'flex' || (hv && hv.style.display === 'flex')) return;
+            var n = String(name || '').toLowerCase();
+            open(n.indexOf('cosmos') !== -1 ? 'cosmos' : (n.indexOf('androm') !== -1 ? 'andro' : (winner === 1 ? 'cosmos' : 'andro')));
+        }, 900);                                                                // deixa ver o resultado do sorteio
+    };
+})();
+</script>
+<div id="introVideo" style="display:none;position:fixed;inset:0;z-index:2147483640;background:#000;align-items:center;justify-content:center;overflow:hidden;opacity:1;transition:opacity .6s ease">
+    <video id="introVideoEl" src="introducao-v2.mp4" playsinline preload="auto" style="width:100%;height:100%;object-fit:contain;background:#000"></video>
+</div>
+<script>
+/* Introdução ao iniciar: toca o vídeo e, quando acaba, mostra a app */
+(function () {
+    var box = document.getElementById('introVideo');
+    var vid = document.getElementById('introVideoEl');
+    var orig = window.startApp;
+    if (!box || !vid || typeof orig !== 'function') return;
+    window.gtaIntro = { done: false, running: false };
+    var guard = null;
+
+    function finish() {
+        if (window.gtaIntro.done) return;
+        clearTimeout(guard);
+        window.gtaIntro.done = true; window.gtaIntro.running = false;
+        orig();                                           // arranca a app (música, esconde o ecrã inicial)
+        box.style.opacity = '0';                          // desvanece o vídeo e revela a app
+        setTimeout(function () { box.style.display = 'none'; try { vid.pause(); } catch (e) {} }, 650);
+    }
+
+    window.startApp = function () {
+        if (window.gtaIntro.done) return orig();
+        if (window.gtaIntro.running) return;
+        window.gtaIntro.running = true;
+        box.style.opacity = '1';
+        box.style.display = 'flex';
+        vid.muted = false;
+        try { vid.currentTime = 0; } catch (e) {}
+        var maxMs = ((isFinite(vid.duration) && vid.duration > 0 ? vid.duration : 10) + 5) * 1000;
+        guard = setTimeout(finish, maxMs);                // segurança: nunca fica preso na introdução
+        vid.addEventListener('ended', finish, { once: true });      // sem pausa: entra na app quando o vídeo acaba
+        vid.addEventListener('error', finish, { once: true });
+        var p = vid.play();
+        if (p && p.catch) p.catch(function () {
+            vid.muted = true;                             // se o som for bloqueado, toca sem som
+            var q = vid.play();
+            if (q && q.catch) q.catch(finish);            // se nem assim tocar, entra na app
+        });
+    };
+})();
+</script>
 <script>
 /* App instalável (PWA) */
 (function () {
@@ -3788,7 +3890,7 @@ window.gtaHardRefresh = async function () {
             navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(function () {});
         });
         // pré-carrega em segundo plano o que a sequência final das 100 vitórias precisa (fica guardado no telemóvel)
-        var PRE = ['video-cosmos.mp4', 'video-andro.mp4'];
+        var PRE = ['introducao-v2.mp4', 'video-cosmos.mp4', 'video-andro.mp4', 'abertura-cosmos.mp4', 'abertura-andro.mp4'];
         window.addEventListener('load', function () {
             setTimeout(function () {
                 if (!navigator.serviceWorker.controller) return;
